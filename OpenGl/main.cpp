@@ -1,151 +1,83 @@
-#include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
 
-// adjust the viewport accordingly
+// fo resizing the window
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
+// for closing the window
 void processInput(GLFWwindow* window) {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	}
 }
 
 int main() {
-	// initialize glfw
-	glfwInit();
 
-	// configuring the glfw 
-	// -----------------------------------------------------------------------------
-	// setting the opengl version as 3.3
-	// =============================================================================
+	//======================================================================================================
+	//======================================================================================================
+	// intializing the glfw 
+	// why is glfw used ?
+	// becoz opengl is just a specification the actual impelemntation depends on the device we are using
+	// glfw does this implementation part so the opengl doesnt have to worry about it
+	glfwInit();
+	// configuring the glfw
+	// as using opengl 3.3 with core profile ( i.e no backwards dependancies )
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	// =============================================================================
-	// setting the opengl profile as core
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	// -----------------------------------------------------------------------------
 
-	// so creating a new windows obj.
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Learn Opengl", NULL, NULL);
+	// so we created a new window in this the 1st 2 params are the dimensions on window created
+	// next is the title
+	// 3rd is monitor ( used for full screen or somethin)
+	// for now 3rd and 4th arg are NULL
+	GLFWwindow* window = glfwCreateWindow(600, 600, "learning opengl", NULL, NULL);
 
-	// checking if the window was created sucessfully
+	// if the window for some reason window is not created
 	if (window == NULL) {
-		std::cout << "failed to create GLFW window" << std::endl;
-
+		std::cout << "ERROR : WINDOW NOT CREATED" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
-	// making it the current context of the thread
+
+	// if valid window then making it current context \
+	// ie. any window function im calling are going to be for this window
 	glfwMakeContextCurrent(window);
 
-	// getting all the opengl pointers
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		std::cout << "failed to init. GLAD" << std::endl;
+
+	// now we want to be able to maintain all the glfw pointer without manually doing it 
+	// for that we will use GLAD
+	
+	if (!gladLoadGLLoader(/*this is a data type*/ (GLADloadproc)glfwGetProcAddress)) {
+		std::cout << "ERROR : FAILED TO INTIALIZE" << std::endl;
 		return -1;
 	}
 
-	// configuring the viewport
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, 600, 600);
 
-	// starting the triangle
-	//========================================================================================================
-	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f , 0.5f, 0.0f
-	};
-
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	const char* vertexShaderSource = "#version 330 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"void main()\n"
-		"{\n"
-		"	gl_Position = vec4(aPos.x,aPos.y,aPos.z,1.0);\n"
-		"}\0";
-
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-
-	const char* fragmentShaderSource = "#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"void main()\n"
-		"{\n"
-		"	FragColor = vec4(1.0f, 0.5f,0.2f,1.0f);\n"
-		"}\0";
-
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-
-	glLinkProgram(shaderProgram);
-
-	glUseProgram(shaderProgram);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-	unsigned int VAO;
-	glGenVertexArrays(1,&VAO);
-
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-
-
-	//========================================================================================================
-
-	// making sure the window when resized also resizes the viewport
+	// so get called every time the window dimensions get changed
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// while we dont want the window to close
+	//======================================================================================================
+	//======================================================================================================
+
+
 	while (!glfwWindowShouldClose(window)) {
-		//input 
+
+		// process input
 		processInput(window);
 
-		// rendering cmds
-
-		// clearing background to a specific color
+		//rendering command
+		// .......
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
-
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		
-		// check and call events and swap buffers
+		// check for updates and swap the buffer
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-
 	glfwTerminate();
 	return 0;
-
 }
