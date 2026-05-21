@@ -2,82 +2,178 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-// fo resizing the window
+// Callback for window resizing
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-	glViewport(0, 0, width, height);
+    glViewport(0, 0, width, height);
 }
 
-// for closing the window
+// Input processing
 void processInput(GLFWwindow* window) {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
+
+// Shader Sources
+//================================================================================================================
+
+const char* vertexShaderSource = "#version 330 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"void main()\n"
+"{\n"
+"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"}\0";
+
+const char* fragmentShaderSource = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"}\0";
+
+//================================================================================================================
+
 
 int main() {
 
-	//======================================================================================================
-	//======================================================================================================
-	// intializing the glfw 
-	// why is glfw used ?
-	// becoz opengl is just a specification the actual impelemntation depends on the device we are using
-	// glfw does this implementation part so the opengl doesnt have to worry about it
-	glfwInit();
-	// configuring the glfw
-	// as using opengl 3.3 with core profile ( i.e no backwards dependancies )
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // glfw init
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// so we created a new window in this the 1st 2 params are the dimensions on window created
-	// next is the title
-	// 3rd is monitor ( used for full screen or somethin)
-	// for now 3rd and 4th arg are NULL
-	GLFWwindow* window = glfwCreateWindow(600, 600, "learning opengl", NULL, NULL);
+    // creating a window using glfw
+    GLFWwindow* window = glfwCreateWindow(600, 600, "Learning OpenGL - Fixed", NULL, NULL);
+    if (window == NULL) {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
 
-	// if the window for some reason window is not created
-	if (window == NULL) {
-		std::cout << "ERROR : WINDOW NOT CREATED" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
+    // so what this does is if we call it it resizes the window accordingly to the new dimensions 
+    // if we dont use it then the displayed content will remain the same size just we will see more of the screen
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// if valid window then making it current context \
-	// ie. any window function im calling are going to be for this window
-	glfwMakeContextCurrent(window);
+    //loading glad
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+
+    //okay so making a vertex shader
+    // so this gives the shader a unique id 
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    // this is the actual data of the shader we are linking that to the unique id 
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // idk what 2nd and last arg does 
+    // compiling the shader
+    glCompileShader(vertexShader);
+
+    // now what if i want to check if the compilation of the shader was successful or not?
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        return -1;
+    }
+
+    // similar to the above vertex shader
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+
+    // checking status of the fragment shader now
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+        return -1;
+    }
+
+    // link Shaders into a Program
+    unsigned int shaderProgram = glCreateProgram();
+    // okay here the order how you link does not matter cause the ids themselves tell what kind of shader it is 
+    glAttachShader(shaderProgram, fragmentShader);
+    glAttachShader(shaderProgram, vertexShader);
+    glLinkProgram(shaderProgram);
+
+    // Delete shaders as they're linked into the program now
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    // checking status of the shader program now
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::PROGRAM::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+        return -1;
+    }
+    
+    //suppose initially we take 3 vertices
+    float vertices[] = {
+         0.5f,  1.5f, 0.0f,  
+         0.5f, -0.5f, 0.0f,  
+        -0.5f, -0.5f, 0.0f,
+        -0.5f, -1.5f, 0.0f
+
+    };
+
+    // store the VBO and also how to access it 
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+
+    glBindVertexArray(VAO);
+
+    // so we made a unique id for a vertex buffer
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+    // then we selected that buffer
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // then we send data for that buffer , selected the size of the buffer and then assigned type of buffer according to how many
+    // times its going to be accessed
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // okay so now we have to tell opengl how to access this info in buffer
+    // vertex buffer
+    //  '----' <= attribute 1
+    // || x1 | y1 | z1 | x2 | y2 | z2 | ... ... ||
+    //  '--------------'
+    //    | vertex 1 |
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // argument 1 : specifies the location of the vertex attribute
+    // argument 2 : number of values in the attribute
+    // argument 3 : type of values in the attribute
+    // argument 4 : whether to normalize or not
+    // argument 5 : stride length
+    // argument 6 : idk ?
+
+    glEnableVertexAttribArray(0);
 
 
-	// now we want to be able to maintain all the glfw pointer without manually doing it 
-	// for that we will use GLAD
-	
-	if (!gladLoadGLLoader(/*this is a data type*/ (GLADloadproc)glfwGetProcAddress)) {
-		std::cout << "ERROR : FAILED TO INTIALIZE" << std::endl;
-		return -1;
-	}
+    while (!glfwWindowShouldClose(window)) {
+        processInput(window);
 
-	glViewport(0, 0, 600, 600);
+        // Rendering
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-	// so get called every time the window dimensions get changed
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+        // Draw our object
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-	//======================================================================================================
-	//======================================================================================================
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
 
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(shaderProgram);
 
-	while (!glfwWindowShouldClose(window)) {
-
-		// process input
-		processInput(window);
-
-		//rendering command
-		// .......
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		// check for updates and swap the buffer
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-
-	glfwTerminate();
-	return 0;
+    glfwTerminate();
+    return 0;
 }
