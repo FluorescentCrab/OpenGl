@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+// P1 C5 Q5
+// Try to draw 2 triangles next to each other using glDrawArrays by adding more vertices to your data.
+
 // Callback for window resizing
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -115,22 +118,43 @@ int main() {
     
     //suppose initially we take 3 vertices
     float vertices[] = {
-         0.5f,  1.5f, 0.0f,  
+        // triangle 1
+         0.5f,  0.5f, 0.0f,  
          0.5f, -0.5f, 0.0f,  
         -0.5f, -0.5f, 0.0f,
-        -0.5f, -1.5f, 0.0f
 
+        // triangle 2
+         0.5f, 0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+        -0.5f,  0.5f, 0.0f
     };
 
+    // as we are not using EBO
+    /*unsigned int indices[] = {
+        0,1,2,
+        0,2,3
+    };*/
+
     // store the VBO and also how to access it 
+
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
 
     glBindVertexArray(VAO);
 
+
     // so we made a unique id for a vertex buffer
     unsigned int VBO;
     glGenBuffers(1, &VBO);
+
+
+    // so not using the EBO
+    /*unsigned int EBO;
+    glGenBuffers(1, &EBO);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);*/
+
     // then we selected that buffer
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // then we send data for that buffer , selected the size of the buffer and then assigned type of buffer according to how many
@@ -165,8 +189,9 @@ int main() {
         // Draw our object
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);     <= so this is not needed as we will not be using EBO
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
