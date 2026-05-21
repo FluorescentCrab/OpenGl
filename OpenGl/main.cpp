@@ -1,6 +1,25 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+
+// P1 C5 Q3
+// So using two shader program with diff fragment shader
+
+std::string readFile(const std::string fileName) {
+    std::ifstream file(fileName);
+    if (!file.is_open()) {
+        std::cout << "ERROR CANNOT OPEN FILE : " << fileName << std::endl;
+        return "";
+    }
+
+    std::stringstream ss {};
+    ss << file.rdbuf();
+    file.close();
+
+    return ss.str();
+}
 
 // Callback for window resizing
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -13,78 +32,61 @@ void processInput(GLFWwindow* window) {
         glfwSetWindowShouldClose(window, true);
 }
 
-// Shader Sources
-//================================================================================================================
-
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\0";
-
-//================================================================================================================
 
 
 int main() {
 
-    // THE GLFW AND GLAD STUFF
-    //=====================================================================================================================
-        // glfw init
-        glfwInit();
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // glfw init
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        // creating a window using glfw
-        GLFWwindow* window = glfwCreateWindow(600, 600, "Learning OpenGL - Fixed", NULL, NULL);
-        if (window == NULL) {
-            std::cout << "Failed to create GLFW window" << std::endl;
-            glfwTerminate();
-            return -1;
-        }
-        glfwMakeContextCurrent(window);
+    // creating a window using glfw
+    GLFWwindow* window = glfwCreateWindow(600, 600, "Learning OpenGL - Fixed", NULL, NULL);
+    if (window == NULL) {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
 
-        // so what this does is if we call it it resizes the window accordingly to the new dimensions 
-        // if we dont use it then the displayed content will remain the same size just we will see more of the screen
-        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    // so what this does is if we call it it resizes the window accordingly to the new dimensions 
+    // if we dont use it then the displayed content will remain the same size just we will see more of the screen
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-        //loading glad
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-            std::cout << "Failed to initialize GLAD" << std::endl;
-            return -1;
-        }
+    //loading glad
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
 
-    //=====================================================================================================================
-    
-    // SHADER PROGRAM
-    //=====================================================================================================================
+    const std::string fragment1ShaderSourceCpp = readFile("fragment1.glsl");
+    const std::string fragment2ShaderSourceCpp = readFile("fragment2.glsl");
+    const std::string vertexShaderSourceCpp = readFile("vertex.glsl");
 
-        //okay so making a vertex shader
-        // so this gives the shader a unique id 
-        unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        // this is the actual data of the shader we are linking that to the unique id 
-        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // idk what 2nd and last arg does 
-        // compiling the shader
-        glCompileShader(vertexShader);
+    const char* fragment1ShaderSource = fragment1ShaderSourceCpp.c_str();
+    const char* fragment2ShaderSource = fragment2ShaderSourceCpp.c_str();
+    const char* vertexShaderSource = vertexShaderSourceCpp.c_str();
 
-        // now what if i want to check if the compilation of the shader was successful or not?
-        int success;
-        char infoLog[512];
-        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    //okay so making a vertex shader
+    // so this gives the shader a unique id 
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    // this is the actual data of the shader we are linking that to the unique id 
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // idk what 2nd and last arg does 
+    // compiling the shader
+    glCompileShader(vertexShader);
 
-        if (!success) {
-            glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-            return -1;
-        }
+    // now what if i want to check if the compilation of the shader was successful or not?
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        return -1;
+    }
 
         // similar to the above vertex shader
         unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
