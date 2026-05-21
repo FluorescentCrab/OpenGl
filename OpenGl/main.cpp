@@ -61,12 +61,10 @@ int main() {
         return -1;
     }
 
-    const std::string fragment1ShaderSourceCpp = readFile("fragment1.glsl");
-    const std::string fragment2ShaderSourceCpp = readFile("fragment2.glsl");
+    const std::string fragmentShaderSourceCpp = readFile("fragment.glsl");
     const std::string vertexShaderSourceCpp = readFile("vertex.glsl");
 
-    const char* fragment1ShaderSource = fragment1ShaderSourceCpp.c_str();
-    const char* fragment2ShaderSource = fragment2ShaderSourceCpp.c_str();
+    const char* fragmentShaderSource = fragmentShaderSourceCpp.c_str();
     const char* vertexShaderSource = vertexShaderSourceCpp.c_str();
 
     //okay so making a vertex shader
