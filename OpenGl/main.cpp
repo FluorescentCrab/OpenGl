@@ -2,8 +2,8 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-// P1 C5 Q5
-// Try to draw 2 triangles next to each other using glDrawArrays by adding more vertices to your data.
+// P1 C5 Q2
+// So using two VAO and VBO to draw seperate triangles
 
 // Callback for window resizing
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -116,65 +116,45 @@ int main() {
         return -1;
     }
     
-    //suppose initially we take 3 vertices
-    float vertices[] = {
-        // triangle 1
-         0.5f,  0.5f, 0.0f,  
-         0.5f, -0.5f, 0.0f,  
-        -0.5f, -0.5f, 0.0f,
+    // triangle 1
+    float vertices1[] = {
+         0.5f,  0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f
+    };
 
-        // triangle 2
+    // triangle 2
+    float vertices2[] = {
          0.5f, 0.5f, 0.0f,
         -0.5f, -0.5f, 0.0f,
         -0.5f,  0.5f, 0.0f
     };
 
-    // as we are not using EBO
-    /*unsigned int indices[] = {
-        0,1,2,
-        0,2,3
-    };*/
+    unsigned int VAO1;
+    unsigned int VBO1;
 
-    // store the VBO and also how to access it 
+    glGenVertexArrays(1, &VAO1);
+    glBindVertexArray(VAO1);
 
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-
-    glBindVertexArray(VAO);
-
-
-    // so we made a unique id for a vertex buffer
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-
-
-    // so not using the EBO
-    /*unsigned int EBO;
-    glGenBuffers(1, &EBO);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);*/
-
-    // then we selected that buffer
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // then we send data for that buffer , selected the size of the buffer and then assigned type of buffer according to how many
-    // times its going to be accessed
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // okay so now we have to tell opengl how to access this info in buffer
-    // vertex buffer
-    //  '----' <= attribute 1
-    // || x1 | y1 | z1 | x2 | y2 | z2 | ... ... ||
-    //  '--------------'
-    //    | vertex 1 |
-
+    glGenBuffers(1, &VBO1);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    // argument 1 : specifies the location of the vertex attribute
-    // argument 2 : number of values in the attribute
-    // argument 3 : type of values in the attribute
-    // argument 4 : whether to normalize or not
-    // argument 5 : stride length
-    // argument 6 : idk ?
+    
+    glEnableVertexAttribArray(0);
+
+
+
+    unsigned int VAO2;
+    unsigned int VBO2;
+
+    glGenVertexArrays(1, &VAO2);
+    glBindVertexArray(VAO2);
+
+    glGenBuffers(1, &VBO2);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
     glEnableVertexAttribArray(0);
 
@@ -188,15 +168,25 @@ int main() {
 
         // Draw our object
         glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
+
+        glBindVertexArray(VAO1);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        glBindVertexArray(VAO2);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);     <= so this is not needed as we will not be using EBO
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO1);
+    glDeleteVertexArrays(1, &VAO2);
+
+    glDeleteBuffers(1, &VBO1);
+    glDeleteBuffers(1, &VBO2);
     glDeleteProgram(shaderProgram);
 
     glfwTerminate();
