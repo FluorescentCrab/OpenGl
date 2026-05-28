@@ -6,6 +6,9 @@
 #include "shader.h"
 
 
+// Question 1
+// Adjusting vertex shader so that the triangle is upside down
+
 std::string readFile(const std::string fileName) {
     std::ifstream file(fileName);
     if (!file.is_open()) {
@@ -62,16 +65,14 @@ int main() {
 
     float vertices[] = {
         // pos data             // color data
-         0.5f,  0.5f, 0.0f, 1.0f,0.0f,0.0f, 
-         0.5f, -0.5f, 0.0f,  0.0f,1.0f,0.0f,
-        -0.5f, -0.5f, 0.0f,0.0f,0.0f,1.0f,
-        -0.5f, 0.5f, 0.0f,1.0f,1.0f,1.0f
+         0.0f,  0.5f, 0.0f,     1.0f,0.0f,0.0f, 
+         0.5f, -0.5f, 0.0f,     0.0f,1.0f,0.0f,
+        -0.5f, -0.5f, 0.0f,     0.0f,0.0f,1.0f
         
     };
     
     unsigned int indices[] = {
-        0,1,2,
-        0,2,3
+        0,1,2
     };
     
 
@@ -113,7 +114,7 @@ int main() {
         shader.use();
         glBindVertexArray(VAO);
 
-        glDrawElements(GL_TRIANGLES , 6,GL_UNSIGNED_INT,0);
+        glDrawElements(GL_TRIANGLES , 3,GL_UNSIGNED_INT,0);
         glBindVertexArray(0);
 
         glfwSwapBuffers(window);
