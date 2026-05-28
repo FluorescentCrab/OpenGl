@@ -10,7 +10,8 @@ uniform float aOffset;
 
 void main()
 {
+	vec3 Pos = vec3(aPos.x + aOffset, aPos.y, aPos.z);
 	// so mirroring along the x axis so that it is upside down 
-   gl_Position = vec4(aPos.x + aOffset, -aPos.y, aPos.z, 1.0);
-   vertexColor = vec4(aCol,1.0f);
+   gl_Position = vec4(Pos, 1.0);
+   vertexColor = vec4(Pos,1.0f);
 }

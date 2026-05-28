@@ -6,8 +6,11 @@
 #include "shader.h"
 
 
-// Question 2
-// Adjusting offset using uniforms
+// Question 3
+// passing color value as position value
+
+// why is the bottom-left side of our triangle black?
+// cords are [-1,1]x[-1,1] so whenever x or y is <= 0 then the color assigned is black as it automatically clamps it to [0,1]
 
 std::string readFile(const std::string fileName) {
     std::ifstream file(fileName);
@@ -118,8 +121,8 @@ int main() {
         glBindVertexArray(VAO);
 
         double curTime = glfwGetTime();
-        float damp = 0.5f*exp(-1.5f*curTime);
-        float offset = 0.0f + damp*sinf(10.0f*(float)curTime);
+        float damp = 0.5f;//*exp(-1.5f*curTime);
+        float offset = 0.0f;//+ damp*sinf(10.0f*(float)curTime);
 
         shader.setFloat("aOffset", offset);
 
