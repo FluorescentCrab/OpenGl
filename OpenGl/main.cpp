@@ -6,8 +6,8 @@
 #include "shader.h"
 
 
-// Question 1
-// Adjusting vertex shader so that the triangle is upside down
+// Question 2
+// Adjusting offset using uniforms
 
 std::string readFile(const std::string fileName) {
     std::ifstream file(fileName);
@@ -75,6 +75,9 @@ int main() {
         0,1,2
     };
     
+    float offset[] = {
+        0.25f,0.25f,0.0f
+    };
 
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -113,6 +116,12 @@ int main() {
 
         shader.use();
         glBindVertexArray(VAO);
+
+        double curTime = glfwGetTime();
+        float damp = 0.5f*exp(-1.5f*curTime);
+        float offset = 0.0f + damp*sinf(10.0f*(float)curTime);
+
+        shader.setFloat("aOffset", offset);
 
         glDrawElements(GL_TRIANGLES , 3,GL_UNSIGNED_INT,0);
         glBindVertexArray(0);
