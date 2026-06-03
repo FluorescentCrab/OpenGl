@@ -6,7 +6,9 @@
 #include "stb_image.h"
 #include "shader.h"
 
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 std::string readFile(const std::string fileName) {
     std::ifstream file(fileName);
@@ -76,7 +78,6 @@ int main() {
         0,1,2,
         0,2,3
     };
-
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     // so gen. and bind the texture
     stbi_set_flip_vertically_on_load(true);
@@ -164,6 +165,15 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
+    
+            glm::mat4 transform = glm::mat4(1.0f);
+            transform = glm::scale(transform, glm::vec3(0.5, 0.5, 0.5));
+            transform = glm::rotate(transform, (float)glm::radians(sin(glfwGetTime()))* 500.f, glm::vec3(0.0f, 0.0f, 1.0f));
+        // transform = glm::rotate(transform, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        unsigned int transLoc = glGetUniformLocation(shader.ID, "transform");
+        glUniformMatrix4fv(transLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
 
         // Rendering
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
