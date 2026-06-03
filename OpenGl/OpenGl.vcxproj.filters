@@ -16,6 +16,9 @@
     <Filter Include="Shader Files">
       <UniqueIdentifier>{3d41ba1e-7101-4979-95ca-6b3d3fd6b499}</UniqueIdentifier>
     </Filter>
+    <Filter Include="textures">
+      <UniqueIdentifier>{ec3335af-1304-49df-961b-bf162b62948a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -46,5 +49,13 @@
     <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="simp.jpg">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="coconut.png">
+      <Filter>textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>
