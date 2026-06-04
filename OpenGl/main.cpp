@@ -165,22 +165,31 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
-    
-            glm::mat4 transform = glm::mat4(1.0f);
-            transform = glm::scale(transform, glm::vec3(0.5, 0.5, 0.5));
-            transform = glm::rotate(transform, (float)glm::radians(sin(glfwGetTime()))* 500.f, glm::vec3(0.0f, 0.0f, 1.0f));
-        // transform = glm::rotate(transform, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        unsigned int transLoc = glGetUniformLocation(shader.ID, "transform");
-        glUniformMatrix4fv(transLoc, 1, GL_FALSE, glm::value_ptr(transform));
-
-
+        
         // Rendering
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Draw our object
         shader.use(); 
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.f, 0.0f));
+
+        glm::mat4 view = glm::mat4(1.0f);
+        view = glm::translate(view,glm::vec3(0.0f,0.0f,-3.0f));
+        
+        glm::mat4 projection = glm::mat4(1.0f);
+        projection = glm::perspective(glm::radians(45.0f),600.0f/600.0f,0.1f,100.0f);
+
+        int modelLoc = glGetUniformLocation(shader.ID, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr( model));
+        
+        int viewLoc = glGetUniformLocation(shader.ID, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr( view));
+        
+        int projectionLoc = glGetUniformLocation(shader.ID, "projection");
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
