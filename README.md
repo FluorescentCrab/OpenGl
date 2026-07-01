@@ -4,7 +4,7 @@ A custom 3D rendering engine built from scratch using Modern OpenGL (3.3) and C+
 
 ---
 
-## 📸 Media Showcase
+## Media Showcase
 
 ### 3D Rotation & Texture Mapping
 Demonstrating real-time 3D coordinate transformations and texture mapping onto a rotating primitive object:
@@ -21,7 +21,7 @@ Testing the Phong lighting setup (ambient, diffuse, and specular reflections) ag
 
 ---
 
-## 🛠️ Core Features Implemented
+## Core Features Implemented
 
 *   **Modern OpenGL Pipeline:** No deprecated fixed functions. Everything uses VAOs, VBOs, and EBOs to stream vertex data directly to the GPU for efficient rendering.
 *   **Custom GLSL Shaders:** Wrote custom vertex and fragment shaders to handle pixel colors, transformations, and vertex manipulation in real-time.
@@ -31,7 +31,7 @@ Testing the Phong lighting setup (ambient, diffuse, and specular reflections) ag
 
 ---
 
-## 🧰 Tech Stack
+## Tech Stack
 
 *   **Language:** C++
 *   **Graphics API:** Modern OpenGL (Core Profile)
@@ -39,7 +39,7 @@ Testing the Phong lighting setup (ambient, diffuse, and specular reflections) ag
 
 ---
 
-## 🚀 How to Run It Locally
+## How to Run It Locally
 
 ### Prerequisites
 You'll need a C++ compiler and CMake installed. Make sure GLFW, GLAD, and GLM are properly configured in your system environment.
